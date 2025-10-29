@@ -1,0 +1,29 @@
+# Ignore Python cache and virtual environment
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+env/
+venv/
+
+# Ignore environment files
+.env
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore build, logs, and cache
+*.log
+*.egg-info/
+*.egg/
+dist/
+build/
+
+# Ignore IDE configs
+.vscode/
+.idea/
+
+# Ignore requirements if you want to exclude it
+requirements.txt
