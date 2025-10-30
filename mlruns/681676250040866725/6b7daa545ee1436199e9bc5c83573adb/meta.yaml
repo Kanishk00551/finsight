@@ -1,0 +1,14 @@
+artifact_uri: file:///E:/finsight/mlruns/681676250040866725/6b7daa545ee1436199e9bc5c83573adb/artifacts
+end_time: 1761767449082
+entry_point_name: ''
+experiment_id: '681676250040866725'
+lifecycle_stage: active
+run_id: 6b7daa545ee1436199e9bc5c83573adb
+run_name: amzn_20251030_012047
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1761767447498
+status: 3
+tags: []
+user_id: kanis
