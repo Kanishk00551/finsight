@@ -28,3 +28,6 @@ build/
 # Ignore requirements if you want to exclude it
 requirements.txt
     
+# Add to your .gitignore file
+logs/
+
