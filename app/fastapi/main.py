@@ -1,16 +1,16 @@
 from fastapi import FastAPI, HTTPException
 from app.services import stock_service, news_service
-from app.ml import sentimentanalysis, trend_analysis
-from app.utils import insight_generator
-from mlops import FinSightTracker  # NEW: Import from mlops module
+from app.ml import sentimentanalysis, trend_analysis, llm_analysis  # Added llm_analysis
+# from app.utils import insight_generator # (Optional) Keep if you want a fallback
+from mlops import FinSightTracker
 
 app = FastAPI(
     title="FinSight",
     description="AI-powered financial insight engine with MLOps tracking",
-    version="1.1.0"
+    version="1.2.0"
 )
 
-# NEW: Initialize tracker
+# Initialize tracker
 tracker = FinSightTracker()
 
 @app.get("/")
@@ -21,7 +21,7 @@ def root():
 def analyze_stock(symbol: str):
     """
     Master endpoint: fetches stock data, related news, sentiment, and insights.
-    NOW WITH CLEAN MLOPS INTEGRATION!
+    Uses GenAI models for final report generation.
     """
     # Start MLflow tracking
     with tracker.start_analysis_run(symbol):
@@ -75,8 +75,15 @@ def analyze_stock(symbol: str):
             # Log trend
             tracker.log_trend(trend_summary)
 
-            # 5️⃣ Generate Insights
-            insights = insight_generator.generate_insight(symbol, sentiment_score, trend_summary)
+            # 5️⃣ Generate AI Insights (Replaces old insight_generator)
+            # Now passing the full data to the LLM
+            insights = llm_analysis.generate_ai_report(
+                symbol=symbol,
+                stock_data=stock_data,
+                sentiment=sentiment_score,
+                trend=trend_summary,
+                news=news_articles
+            )
             
             # Log insight
             tracker.log_insight(insights)
@@ -97,7 +104,7 @@ def analyze_stock(symbol: str):
                     "interpretation": "positive" if sentiment_score > 0 else "negative" if sentiment_score < 0 else "neutral"
                 },
                 "trend": trend_summary,
-                "insights": insights,
+                "insights": insights,  # This will now contain the DeepSeek analysis
                 "mlflow_run_id": run_id
             }
             
@@ -109,4 +116,4 @@ def analyze_stock(symbol: str):
             raise HTTPException(
                 status_code=500,
                 detail=f"Error analyzing {symbol}: {str(e)}"
-            )
+            )   

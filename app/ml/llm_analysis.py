@@ -1,35 +1,60 @@
-import ollama
+import os
+import google.generativeai as genai
+from dotenv import load_dotenv
+
+
+load_dotenv()
+
+# Configure the API
+api_key = os.getenv("GEMINI_API_KEY")
+
+
+if not api_key:
+    print("WARNING: GEMINI_API_KEY not found in .env file.")
+
+genai.configure(api_key=api_key)
 
 def generate_ai_report(symbol, stock_data, sentiment, trend, news):
-    """Generate detailed AI analysis using local LLM via Ollama"""
+    """
+    Generate detailed AI analysis using Google Gemini API.
+    Replaces local Ollama execution to prevent system crashes.
+    """
     
-    # Construct the prompt with data
+
+    news_text = ""
+    if news and isinstance(news, list):
+        news_text = "\n".join(news[:5])
+    
+   
     prompt = f"""
-    As a financial analyst, provide detailed analysis for {symbol}:
+    You are a professional financial analyst. Provide a detailed analysis for the stock {symbol}.
     
-    Current Price: ${stock_data['current_price']}
-    Price Change: {stock_data['price_change_percent']}%
-    Sentiment Score: {sentiment}
-    Trend: {trend}
+    Data:
+    - Current Price: ${stock_data.get('current_price', 'N/A')}
+    - Price Change: {stock_data.get('price_change_percent', 'N/A')}%
+    - Sentiment Score: {sentiment}
+    - Trend: {trend}
     
     Recent News Headlines:
-    {chr(10).join(news[:5])}
+    {news_text}
     
-    Provide:
-    1. Investment recommendation (Buy/Hold/Sell)
-    2. Risk assessment (High/Medium/Low)
-    3. Key factors driving the stock
-    4. Short-term and long-term outlook
+    Please provide a structured report with:
+    1. Investment Recommendation (Buy/Hold/Sell)
+    2. Risk Assessment (High/Medium/Low)
+    3. Key Driving Factors
+    4. Short-term vs Long-term Outlook
     """
+
     try:
-        response = ollama.chat(
-            model="deepseek-r1",  
-            messages=[{
-                "role": "user",
-                "content": prompt
-            }]
-        )
-        return response['message']['content']
+       
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        response = model.generate_content(prompt)
+        
+      
+        return response.text
         
     except Exception as e:
-        return f"Error generating report: {str(e)}"
+      
+        error_msg = f"Error generating report via Gemini: {str(e)}"
+        print(error_msg)
+        return error_msg
