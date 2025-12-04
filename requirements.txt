@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+yfinance
+google-generativeai
+python-dotenv
+newsapi-python
+transformers
+torch
+beautifulsoup4
+pandas
+lxml
+html5lib
