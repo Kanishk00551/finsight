@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
 import time
+import os
 from datetime import datetime
 
 # --- 1. Page Configuration ---
@@ -37,6 +38,14 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+# --- CONFIGURATION ---
+# Dynamic API URL: Uses environment variable if present (Render), else defaults to localhost
+API_URL = os.getenv("API_URL", "http://localhost:8001")
+
+# Remove trailing slash if present to avoid double slashes in URLs
+if API_URL.endswith("/"):
+    API_URL = API_URL[:-1]
+
 # --- 3. Sidebar: System Status & Config ---
 with st.sidebar:
     st.title("⚙️ System Status")
@@ -44,14 +53,19 @@ with st.sidebar:
     # Check FastAPI Connection
     api_status = st.empty()
     try:
-        response = requests.get("http://localhost:8001/", timeout=2)
+        # Use dynamic API_URL
+        response = requests.get(f"{API_URL}/", timeout=2)
         if response.status_code == 200:
             api_status.success("✅ Backend (FastAPI): Online")
         else:
             api_status.warning(f"⚠️ Backend: Status {response.status_code}")
     except requests.exceptions.ConnectionError:
         api_status.error("❌ Backend: Offline")
-        st.info("💡 Tip: Run `uvicorn app.fastapi.main:app --reload --port 8001`")
+        # Show helpful debugging info
+        if "localhost" in API_URL:
+            st.info("💡 Tip: Run `uvicorn app.fastapi.main:app --reload --port 8001` locally")
+        else:
+            st.info(f"💡 Trying to connect to: {API_URL}")
 
     st.markdown("---")
     st.markdown("### 🤖 Model Info")
@@ -86,8 +100,8 @@ if analyze_btn:
         with result_container:
             try:
                 with st.spinner(f"Connecting to AI Agent... Reading news for {symbol}..."):
-                    # Call FastAPI
-                    response = requests.get(f"http://localhost:8001/analyze/{symbol}", timeout=120)
+                    # Use dynamic API_URL for analysis endpoint
+                    response = requests.get(f"{API_URL}/analyze/{symbol}", timeout=120)
                     
                     if response.status_code == 200:
                         data = response.json()
@@ -108,7 +122,7 @@ if analyze_btn:
                         # Sentiment Metric
                         sent_score = sentiment.get('score', 0)
                         sent_color = "normal"
-                        if sent_score > 0.1: sent_color = "off" # Streamlit doesn't strictly support green metric delta without arrow
+                        if sent_score > 0.1: sent_color = "off" 
                         m2.metric("News Sentiment", f"{sent_score:.2f}", sentiment.get('interpretation', 'neutral').upper())
                         
                         # Trend Metric
@@ -148,6 +162,9 @@ if analyze_btn:
                         
             except requests.exceptions.ConnectionError:
                 st.error("🛑 Connection Refused. Please ensure FastAPI backend is running.")
-                st.code("uvicorn app.fastapi.main:app --reload --port 8001")
+                if "localhost" in API_URL:
+                    st.code("uvicorn app.fastapi.main:app --reload --port 8001")
+                else:
+                    st.error(f"Target URL: {API_URL}")
             except Exception as e:
                 st.error(f"⚠️ An unexpected error occurred: {str(e)}")
