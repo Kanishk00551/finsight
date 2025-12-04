@@ -1,857 +1,520 @@
-🚀 FinSight - AI-Powered Stock Analysis Platform
-
-A production-grade intelligent stock analysis system that combines real-time market data, AI-powered sentiment analysis, and automated workflow orchestration. Features complete MLOps tracking, automated scheduling, and an interactive web interface.
-
-🌐 Live Demo: https://finsight-backend-2fd1.onrender.com/
-
-📋 Table of Contents
-
-Features
-
-System Architecture
-
-Tech Stack
-
-Project Structure
-
-Prerequisites
-
-Installation & Setup
-
-Configuration
-
-Running the Application
-
-Deployment
-
-API Documentation
-
-MLOps Pipeline
-
-Workflow Automation
-
-Troubleshooting
-
-Performance Metrics
-
-Resume Summary
-
-✨ Features
-
-Core Functionality
-
-🔍 Real-Time Stock Analysis - Live market data via Yahoo Finance API
-
-📰 News Sentiment Analysis - VADER sentiment analyzer for financial news
-
-📈 Trend Detection - Linear regression-based trend analysis
-
-🤖 AI Report Generation - Google Gemini 2.5 Flash for comprehensive insights
-
-💬 Interactive UI - Streamlit-based web interface
-
-MLOps & Production
-
-📊 Experiment Tracking - MLflow for metrics, parameters, and artifacts
-
-⏰ Workflow Automation - Apache Airflow with Docker orchestration
-
-🔄 Async Processing - FastAPI with async request handling
-
-📝 Comprehensive Logging - Structured logging across all services
-
-🐳 Containerization - Docker Compose for simplified deployment
-
-Production Infrastructure
-
-🌐 Cloud Deployment - Render.com hosted backend
-
-💾 Multiple Storage Backends - SQLite (dev), PostgreSQL (production)
-
-🔐 Secure Configuration - Environment-based secrets management
-
-📡 RESTful API - OpenAPI/Swagger documentation
-
-🏗️ System Architecture
-
-High-Level Architecture
-
-graph TD
-    subgraph "Client Layer"
-        User([👤 User])
-        Streamlit[🖥️ Streamlit Frontend]
-    end
-
-    subgraph "Application Layer"
-        API[⚡ FastAPI Backend]
-        Auth[🔐 Auth Middleware]
-    end
-
-    subgraph "Data & Logic Layer"
-        YF[📈 Yahoo Finance API]
-        News[📰 NewsAPI]
-        
-        subgraph "AI Core"
-            RoBERTa[🤖 RoBERTa Model<br/>(Sentiment Analysis)]
-            Trend[📉 Trend Algorithm<br/>(Linear Regression)]
-            Gemini[✨ Google Gemini<br/>(Insight Generation)]
-        end
-    end
-
-    subgraph "MLOps & Storage"
-        MLflow[📊 MLflow Tracking Server]
-        Artifacts[🗄️ Artifact Store]
-    end
-
-    %% Data Flow
-    User -->|Interaction| Streamlit
-    Streamlit -->|HTTP Request /analyze/{symbol}| API
-    
-    API -->|Fetch Prices| YF
-    API -->|Fetch News| News
-    
-    API -->|Raw Text| RoBERTa
-    API -->|Price History| Trend
-    
-    RoBERTa -->|Sentiment Score| API
-    Trend -->|Trend Status| API
-    
-    API -->|Contextual Data| Gemini
-    Gemini -->|Summary Report| API
-    
-    API -.->|Log Metrics & Artifacts| MLflow
-    MLflow -.->|Store| Artifacts
-    
-    API -->|JSON Response| Streamlit
-    Streamlit -->|Visualization| User
-
-    %% Styling
-    style User fill:#f9f,stroke:#333,stroke-width:2px
-    style Streamlit fill:#ff4b4b,stroke:#333,color:white
-    style API fill:#009688,stroke:#333,color:white
-    style RoBERTa fill:#ff9800,stroke:#333,color:black
-    style Gemini fill:#4285F4,stroke:#333,color:white
-    style MLflow fill:#03a9f4,stroke:#333,color:white
-
-
-Data Flow Architecture
-
-sequenceDiagram
-    participant User
-    participant API as FastAPI
-    participant Model as AI Models
-    participant MLflow
-    
-    User->>API: Request Analysis (e.g., AAPL)
-    activate API
-    
-    Note right of API: 1. Data Aggregation
-    API->>API: Fetch Market Data & News
-    
-    Note right of API: 2. Inference
-    API->>Model: Analyze Sentiment & Trend
-    Model-->>API: Return Scores
-    
-    Note right of API: 3. Insight Generation
-    API->>Model: Generate LLM Report
-    Model-->>API: Return Text Report
-    
-    Note right of API: 4. Tracking
-    API->>MLflow: Start Run
-    API->>MLflow: Log Params (Symbol, Time)
-    API->>MLflow: Log Metrics (Price, Sentiment)
-    API->>MLflow: Log Artifacts (Report.txt)
-    API->>MLflow: End Run
-    
-    API-->>User: Return Structured JSON
-    deactivate API
-
-
-Airflow Automation Pipeline
-
-graph TD
-    Scheduler[⏰ Airflow Scheduler]
-    DAG[📝 finsight_daily_analysis]
-    
-    subgraph "Parallel Execution"
-        T1[Analyze AAPL]
-        T2[Analyze TSLA]
-        T3[Analyze MSFT]
-        T4[Analyze AMZN]
-    end
-    
-    API[⚡ FastAPI Endpoint]
-    MLflow[📊 MLflow Logging]
-    
-    Scheduler -->|Trigger| DAG
-    DAG --> T1
-    DAG --> T2
-    DAG --> T3
-    DAG --> T4
-    
-    T1 -->|HTTP Call| API
-    T2 -->|HTTP Call| API
-    T3 -->|HTTP Call| API
-    T4 -->|HTTP Call| API
-    
-    API -->|Log Results| MLflow
-
-
-Storage & Infrastructure
-
-graph LR
-    subgraph "Development (Local)"
-        SQLite[(SQLite DB)]
-        LocalFS[Local Filesystem]
-    end
-    
-    subgraph "Production (Render)"
-        Postgres[(PostgreSQL)]
-        CloudStore[Cloud Storage]
-    end
-    
-    FastAPI -->|Write| SQLite
-    FastAPI -->|Write| Postgres
-    MLflow -->|Artifacts| LocalFS
-    MLflow -->|Artifacts| CloudStore
-
-
-🛠️ Tech Stack
-
-Backend Framework
-
-FastAPI (v0.116) - High-performance async web framework
-
-Uvicorn - ASGI server for production
-
-Pydantic - Data validation and settings management
-
-Data Sources & APIs
-
-yfinance - Yahoo Finance API for real-time stock data
-
-NewsAPI (newsapi-python) - Financial news aggregation
-
-Pandas & NumPy - Data manipulation and analysis
-
-Machine Learning & AI
-
-VADER Sentiment - Lexicon and rule-based sentiment analysis
-
-Optimized for social media and financial text
-
-Lightweight (~1MB RAM footprint)
-
-Google Gemini 2.5 Flash - Large language model for report generation
-
-Structured analysis and investment recommendations
-
-Linear Regression (NumPy) - Trend detection and prediction
-
-MLOps & Orchestration
-
-MLflow (v2.10) - Experiment tracking and model registry
-
-Parameter logging
-
-Metrics tracking
-
-Artifact storage
-
-Apache Airflow (v2.9) - Workflow orchestration
-
-DAG-based scheduling
-
-Task parallelization
-
-Retry logic
-
-Infrastructure & DevOps
-
-Docker & Docker Compose - Containerization
-
-SQLite - Development database (Airflow metadata)
-
-PostgreSQL - Production database (Render deployment)
-
-Redis - Task queue for Celery executor (production)
-
-Render.com - Cloud hosting platform
-
-Frontend
-
-Streamlit (v1.31) - Interactive web application
-
-HTML/CSS - Custom styling
-
-📁 Project Structure
-
+# 🚀 FinSight - AI-Powered Stock Insight Generator
+
+[![Python](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.116-green.svg)](https://fastapi.tiangolo.com/)
+[![MLflow](https://img.shields.io/badge/MLflow-Tracking-orange.svg)](https://mlflow.org/)
+[![Airflow](https://img.shields.io/badge/Airflow-3.1.1-red.svg)](https://airflow.apache.org/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
+
+An intelligent backend system that generates AI-powered insights for stock market analysis by combining real-time market data, news sentiment analysis, and trend detection with complete MLOps tracking.
+
+---
+
+## 📋 Table of Contents
+
+- [Features](#-features)
+- [Architecture](#-architecture)
+- [Tech Stack](#-tech-stack)
+- [Project Structure](#-project-structure)
+- [Installation](#-installation)
+- [Configuration](#-configuration)
+- [Usage](#-usage)
+- [API Endpoints](#-api-endpoints)
+- [MLOps Integration](#-mlops-integration)
+- [Automation](#-automation)
+- [Development](#-development)
+- [Troubleshooting](#-troubleshooting)
+- [Contributing](#-contributing)
+- [License](#-license)
+
+---
+
+## ✨ Features
+
+### Core Functionality
+- 🔍 **Real-time Stock Analysis** - Fetch live market data using Yahoo Finance API
+- 📰 **News Sentiment Analysis** - Analyze financial news using RoBERTa transformer model
+- 📈 **Trend Detection** - Calculate stock trends using linear regression
+- 🤖 **AI Insight Generation** - Generate human-readable summaries combining all analyses
+
+### MLOps & Automation
+- 📊 **MLflow Tracking** - Track every analysis with metrics, parameters, and artifacts
+- ⏰ **Airflow Automation** - Schedule daily automated stock analysis
+- 🐳 **Docker Deployment** - Containerized Airflow setup for production
+- 📦 **Experiment Management** - Compare analyses across stocks and time periods
+
+### Production Ready
+- ✅ **RESTful API** - Built with FastAPI for high performance
+- 🔄 **Async Processing** - Handle multiple requests efficiently
+- 📝 **Comprehensive Logging** - Track all operations and errors
+- 🔒 **Environment-based Config** - Secure API key management
+
+---
+
+## 🏗️ Architecture
+
+```
+┌─────────────┐
+│   User      │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────────────────────────────────┐
+│         FastAPI Backend                 │
+│  ┌─────────────────────────────────┐   │
+│  │  /analyze/{symbol} endpoint     │   │
+│  └─────────────────────────────────┘   │
+└───────┬──────────────┬──────────────────┘
+        │              │
+        ▼              ▼
+┌──────────────┐  ┌──────────────┐
+│   Services   │  │  ML Models   │
+│              │  │              │
+│ Stock Data   │  │ Sentiment    │
+│ News API     │  │ Trend        │
+│ Yahoo Finance│  │ Insight Gen  │
+└──────┬───────┘  └──────┬───────┘
+       │                 │
+       └────────┬────────┘
+                ▼
+        ┌──────────────┐
+        │   MLflow     │
+        │  Tracking    │
+        └──────────────┘
+                │
+                ▼
+        ┌──────────────┐
+        │  Airflow     │
+        │ Automation   │
+        └──────────────┘
+```
+
+---
+
+## 🛠️ Tech Stack
+
+### Backend
+- **FastAPI** - Modern, fast web framework for building APIs
+- **Python 3.11** - Core programming language
+- **Uvicorn** - ASGI server for production
+
+### Data & APIs
+- **yfinance** - Yahoo Finance API for stock data
+- **NewsAPI** - Financial news aggregation
+- **Pandas** - Data manipulation and analysis
+- **NumPy** - Numerical computing
+
+### Machine Learning
+- **Transformers (Hugging Face)** - Pre-trained RoBERTa sentiment model
+- **PyTorch** - Deep learning framework
+- **CardiffNLP/twitter-roberta-base-sentiment-latest** - Fine-tuned sentiment model
+
+### MLOps
+- **MLflow** - Experiment tracking, model registry
+- **Apache Airflow** - Workflow orchestration
+- **Docker & Docker Compose** - Containerization
+- **PostgreSQL** - Airflow metadata database
+- **Redis** - Airflow task queue
+
+---
+
+## 📁 Project Structure
+
+```
 finsight/
 ├── app/
 │   ├── core/
-│   │   └── config.py              # Environment configuration
+│   │   ├── __init__.py
+│   │   └── config.py              # Configuration & environment variables
 │   ├── fastapi/
-│   │   └── main.py                # FastAPI application entry
+│   │   ├── __init__.py
+│   │   └── main.py                # FastAPI application entry point
 │   ├── ml/
-│   │   ├── llm_analysis.py        # Gemini AI integration
-│   │   ├── sentimentanalysis.py   # VADER sentiment analyzer
-│   │   └── trend_analysis.py      # Linear regression trends
+│   │   ├── __init__.py
+│   │   ├── sentimentanalysis.py  # Sentiment analysis model
+│   │   └── trend_analysis.py     # Trend detection model
 │   ├── services/
-│   │   ├── news_service.py        # NewsAPI integration
-│   │   └── stock_service.py       # Yahoo Finance integration
-│   ├── utils/
-│   │   └── insight_generator.py   # Legacy insight generator
-│   ├── streamlit_app.py           # Streamlit UI
-│   └── tests/                     # Unit tests
+│   │   ├── __init__.py
+│   │   ├── news_service.py       # NewsAPI integration
+│   │   └── stock_service.py      # Yahoo Finance integration
+│   └── utils/
+│       ├── __init__.py
+│       └── insight_generator.py  # AI insight generation
 │
 ├── mlops/
 │   ├── __init__.py
 │   ├── config.py                  # MLflow configuration
-│   └── mlflow_tracker.py          # Tracking wrapper
+│   └── mlflow_tracker.py         # MLflow tracking wrapper
 │
 ├── dags/
-│   └── finsight_daily.py          # Airflow DAG definition
+│   └── finsight_daily.py         # Airflow DAG for automation
 │
-├── mlruns/                        # MLflow experiments (local)
+├── mlruns/                        # MLflow experiment data
 ├── logs/                          # Airflow logs
 ├── plugins/                       # Airflow plugins
-├── config/
-│   └── airflow.cfg                # Airflow configuration
+├── config/                        # Airflow config
 │
-├── docker-compose.yaml            # Airflow Docker setup
-├── requirements.txt               # Python dependencies
-├── render.yaml                    # Render deployment config
-├── .env                           # Environment variables (gitignored)
+├── docker-compose.yaml           # Airflow Docker setup
+├── requirements.txt              # Python dependencies
+├── .env                          # Environment variables (not in git)
 ├── .gitignore
 └── README.md
+```
 
+---
 
-🔑 Prerequisites
+## 🚀 Installation
 
-Required Software
+### Prerequisites
+- Python 3.11+
+- Docker Desktop (for Airflow)
+- NewsAPI Key ([Get free key](https://newsapi.org/register))
 
-Python 3.11+
-
-Docker Desktop (for Airflow)
-
-Git
-
-Required API Keys
-
-1. NewsAPI Key (Required)
-
-Purpose: Fetch financial news articles
-
-Sign up: https://newsapi.org/register
-
-Free tier: 100 requests/day
-
-Cost: Free for development
-
-2. Google Gemini API Key (Required)
-
-Purpose: Generate AI-powered stock analysis reports
-
-Sign up: https://makersuite.google.com/app/apikey
-
-Free tier: 60 requests/minute
-
-Cost: Free for testing
-
-3. MLflow Tracking URI (Optional)
-
-Purpose: Remote experiment tracking
-
-Setup: Can use local filesystem (default) or remote server
-
-Default: ./mlruns (local directory)
-
-🚀 Installation & Setup
-
-Step 1: Clone Repository
-
-git clone [https://github.com/Kanishk00551/finsight.git](https://github.com/Kanishk00551/finsight.git)
+### Step 1: Clone Repository
+```bash
+git clone https://github.com/Kanishk00551/finsight.git
 cd finsight
+```
 
-
-Step 2: Create Virtual Environment
-
-# Windows
+### Step 2: Create Virtual Environment
+```bash
 python -m venv venv
-venv\Scripts\activate
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
 
-# macOS/Linux
-python3 -m venv venv
-source venv/bin/activate
-
-
-Step 3: Install Dependencies
-
+### Step 3: Install Dependencies
+```bash
 pip install -r requirements.txt
+```
 
-
-Step 4: Environment Configuration
-
-Create a .env file in the project root:
-
-# Required API Keys
+### Step 4: Set Up Environment Variables
+Create `.env` file:
+```bash
 NEWS_API_KEY=your_newsapi_key_here
-GEMINI_API_KEY=your_gemini_api_key_here
+AIRFLOW_UID=50000
+```
 
-# MLflow Configuration (Optional)
+### Step 5: Create Required Folders
+```bash
+mkdir -p dags logs plugins config mlruns
+```
+
+---
+
+## ⚙️ Configuration
+
+### Environment Variables
+
+Create a `.env` file in the project root:
+
+```env
+# NewsAPI Configuration
+NEWS_API_KEY=your_newsapi_key_here
+
+# Airflow Configuration
+AIRFLOW_UID=50000
+
+# MLflow Configuration (optional)
 MLFLOW_TRACKING_URI=./mlruns
 MLFLOW_EXPERIMENT_NAME=finsight-stock-analysis
+```
 
-# Airflow Configuration (for Docker)
-AIRFLOW_UID=50000
-_AIRFLOW_WWW_USER_USERNAME=admin
-_AIRFLOW_WWW_USER_PASSWORD=admin
+### Default Stocks
 
-# API Configuration (for Streamlit)
-API_URL=http://localhost:8001
+Edit `app/core/config.py` to change default stocks:
 
+```python
+DEFAULT_STOCKS = ["AAPL", "TSLA", "MSFT", "AMZN"]
+```
 
-Step 5: Create Required Directories
+---
 
-mkdir -p dags logs plugins config mlruns
+## 🎯 Usage
 
+### Quick Start (All Services)
 
-⚙️ Configuration
+**Terminal 1 - MLflow UI:**
+```bash
+cd finsight
+source venv/bin/activate  # Windows: venv\Scripts\activate
+mlflow ui --host 127.0.0.1 --port 5000
+```
 
-Stock Symbols
+**Terminal 2 - FastAPI:**
+```bash
+cd finsight
+source venv/bin/activate
+uvicorn app.fastapi.main:app --reload --port 8001
+```
 
-Edit app/core/config.py to customize default stocks:
+**Terminal 3 - Airflow (Docker):**
+```bash
+cd finsight
+docker-compose up
+```
 
-DEFAULT_STOCKS = ["AAPL", "TSLA", "MSFT", "AMZN", "GOOGL", "NVDA"]
+### Access Points
+- **FastAPI Docs:** http://localhost:8001/docs
+- **MLflow Dashboard:** http://localhost:5000
+- **Airflow UI:** http://localhost:8080
+  - Username: `airflow`
+  - Password: `airflow`
 
+---
 
-MLflow Settings
+## 📡 API Endpoints
 
-Edit mlops/config.py:
+### Analyze Stock
 
-MLFLOW_TRACKING_URI = "./mlruns"  # Local
-# MLFLOW_TRACKING_URI = "http://mlflow-server:5000"  # Remote
-MLFLOW_EXPERIMENT_NAME = "finsight-stock-analysis"
+**Endpoint:** `GET /analyze/{symbol}`
 
+**Example Request:**
+```bash
+curl http://localhost:8001/analyze/TSLA
+```
 
-Airflow Schedule
+**Example Response:**
+```json
+{
+  "symbol": "TSLA",
+  "stock_data": {
+    "current_price": 461.01,
+    "previous_price": 460.55,
+    "price_change": 0.46,
+    "price_change_percent": 0.099
+  },
+  "news_count": 10,
+  "news_samples": [
+    "Tesla reveals cheaper Model Y...",
+    "Jim Cramer on Tesla CEO...",
+    "Tesla's Optimus robot..."
+  ],
+  "sentiment": {
+    "score": 0.2,
+    "interpretation": "positive"
+  },
+  "trend": "uptrend",
+  "insights": "TSLA shows an upward market trend with overall positive sentiment from recent financial news.",
+  "mlflow_run_id": "abc123xyz456"
+}
+```
 
-Edit dags/finsight_daily.py:
+### Root Endpoint
 
-# Daily at 9 AM UTC
+**Endpoint:** `GET /`
+
+**Response:**
+```json
+{
+  "message": "🚀 FinSight backend is running successfully"
+}
+```
+
+---
+
+## 📊 MLOps Integration
+
+### MLflow Tracking
+
+Every analysis is automatically logged with:
+
+**Parameters:**
+- `stock_symbol` - Stock ticker
+- `timestamp` - Analysis time
+- `trend_direction` - Market trend
+- `status` - Success/failure
+
+**Metrics:**
+- `current_price` - Latest stock price
+- `price_change` - Price movement
+- `price_change_percent` - Percentage change
+- `sentiment_score` - News sentiment (-1 to 1)
+- `news_count` - Number of articles analyzed
+
+**Artifacts:**
+- `insight.txt` - Generated insight text
+
+**Tags:**
+- `model_version` - System version
+- `sentiment_model` - ML model used
+- `sentiment_category` - Positive/negative/neutral
+
+### Viewing Results
+
+1. Open MLflow UI: http://localhost:5000
+2. Click on "finsight-stock-analysis" experiment
+3. View all runs in table format
+4. Compare metrics across different stocks
+5. Filter by parameters or metrics
+
+### Example Queries
+
+**Compare sentiment across stocks:**
+```
+Sort by: metrics.sentiment_score DESC
+```
+
+**Find analyses with positive sentiment:**
+```
+metrics.sentiment_score > 0
+```
+
+**Filter by specific stock:**
+```
+params.stock_symbol = "TSLA"
+```
+
+---
+
+## ⏰ Automation
+
+### Airflow DAG
+
+The `finsight_daily_analysis` DAG:
+- **Schedule:** Daily at 9:00 AM
+- **Tasks:** Analyze AAPL, TSLA, MSFT, AMZN
+- **Execution:** Tasks run in parallel
+- **Retry Logic:** 2 retries with 3-minute delay
+
+### Manual Trigger
+
+1. Open Airflow UI: http://localhost:8080
+2. Find "finsight_daily_analysis" DAG
+3. Toggle it **ON**
+4. Click "Trigger DAG" button
+
+### Customize Schedule
+
+Edit `dags/finsight_daily.py`:
+
+```python
+# Daily at 9 AM
 schedule_interval='0 9 * * *'
 
 # Every 6 hours
 schedule_interval='0 */6 * * *'
 
+# Every Monday at 9 AM
+schedule_interval='0 9 * * 1'
+
 # Hourly
 schedule_interval='@hourly'
+```
 
+---
 
-🎯 Running the Application
+## 🔧 Development
 
-Option 1: Complete Setup (All Services)
+### Running Tests
 
-Terminal 1 - MLflow Tracking UI:
+```bash
+pytest app/tests/
+```
 
-cd finsight
-source venv/bin/activate  # Windows: venv\Scripts\activate
-mlflow ui --host 127.0.0.1 --port 5000
+### Code Formatting
 
+```bash
+black app/
+flake8 app/
+```
 
-Access at: http://localhost:5000
+### Adding New Stocks
 
-Terminal 2 - FastAPI Backend:
+Edit `app/core/config.py`:
 
-cd finsight
-source venv/bin/activate
-uvicorn app.fastapi.main:app --reload --port 8001
+```python
+DEFAULT_STOCKS = ["AAPL", "TSLA", "MSFT", "AMZN", "GOOGL", "META"]
+```
 
+### Adding New Features
 
-Access at: http://localhost:8001/docs
+1. Create feature branch
+2. Implement in appropriate module
+3. Add tests
+4. Update documentation
+5. Submit pull request
 
-Terminal 3 - Streamlit UI:
+---
 
-cd finsight
-source venv/bin/activate
-streamlit run app/streamlit_app.py --server.port 8501
+## 🐛 Troubleshooting
 
+### Common Issues
 
-Access at: http://localhost:8501
-
-Terminal 4 - Airflow (Docker):
-
-cd finsight
-docker-compose up
-
-
-Access at: http://localhost:8080 (admin/admin)
-
-Option 2: Minimal Setup (UI + Backend Only)
-
-Terminal 1 - Backend:
-
-uvicorn app.fastapi.main:app --reload --port 8001
-
-
-Terminal 2 - Frontend:
-
-streamlit run app/streamlit_app.py
-
-
-Option 3: Backend Only (API Testing)
-
-uvicorn app.fastapi.main:app --reload --port 8001
-
-
-Test with curl:
-
-curl http://localhost:8001/analyze/AAPL
-
-
-🌐 Deployment
-
-Render.com Deployment (Current Production)
-
-Live URL: https://finsight-backend-2fd1.onrender.com/
-
-Configuration:
-
-Service Type: Web Service
-
-Build Command:
-
-pip install -r requirements.txt
-
-
-Start Command:
-
-uvicorn app.fastapi.main:app --host 0.0.0.0 --port $PORT
-
-
-Environment Variables (Render Dashboard):
-
-NEWS_API_KEY=your_newsapi_key
-GEMINI_API_KEY=your_gemini_key
-MLFLOW_TRACKING_URI=./mlruns
-
-
-Free Tier Limitations:
-
-⏰ Service spins down after 15 min inactivity
-
-🔄 First request after spin-down takes ~30 seconds
-
-💾 Limited to 512MB RAM
-
-⚡ No persistent storage (use external DB for production)
-
-Alternative Deployments
-
-Docker Deployment:
-
-# Build image
-docker build -t finsight-backend .
-
-# Run container
-docker run -d \
-  -p 8001:8001 \
-  -e NEWS_API_KEY=your_key \
-  -e GEMINI_API_KEY=your_key \
-  finsight-backend
-
-
-AWS/GCP/Azure:
-
-Use render.yaml dependencies
-
-Set environment variables in cloud console
-
-Use managed PostgreSQL for Airflow metadata
-
-Use S3/GCS for MLflow artifact storage
-
-📡 API Documentation
-
-Base URL
-
-Local: http://localhost:8001
-
-Production: https://finsight-backend-2fd1.onrender.com
-
-Endpoints
-
-1. Health Check
-
-GET /
-
-
-Response:
-
-{
-  "message": "🚀 FinSight backend is running successfully"
-}
-
-
-2. Analyze Stock
-
-GET /analyze/{symbol}
-
-
-Parameters:
-
-symbol (path) - Stock ticker symbol (e.g., AAPL, TSLA)
-
-Response:
-
-{
-  "symbol": "AAPL",
-  "stock_data": {
-    "current_price": 178.72,
-    "previous_price": 177.55,
-    "price_change": 1.17,
-    "price_change_percent": 0.66
-  },
-  "news_count": 10,
-  "news_samples": [
-    "Apple announces new AI features...",
-    "iPhone sales exceed expectations...",
-    "Apple stock reaches new high..."
-  ],
-  "sentiment": {
-    "score": 0.45,
-    "interpretation": "positive"
-  },
-  "trend": "uptrend",
-  "insights": "## Investment Recommendation: BUY\n\n### Risk Assessment: Medium\n\n### Key Driving Factors:\n- Strong revenue growth from AI products\n- Positive market sentiment...",
-  "mlflow_run_id": "abc123xyz456"
-}
-
-
-Interactive API Docs
-
-Swagger UI: http://localhost:8001/docs
-
-ReDoc: http://localhost:8001/redoc
-
-📊 MLOps Pipeline
-
-Experiment Tracking with MLflow
-
-Every stock analysis creates a tracked experiment with:
-
-Logged Parameters:
-
-stock_symbol - Ticker being analyzed
-
-timestamp - Analysis timestamp (ISO 8601)
-
-trend_direction - Market trend (uptrend/downtrend)
-
-status - Success or failure
-
-Logged Metrics:
-
-current_price - Latest stock price
-
-price_change - Absolute price movement
-
-price_change_percent - Percentage change
-
-sentiment_score - News sentiment (-1 to +1)
-
-news_count - Articles analyzed
-
-Logged Artifacts:
-
-insight.txt - AI-generated analysis report
-
-Tags:
-
-analysis_type: stock_insight
-
-sentiment_category: positive/negative/neutral
-
-trend: uptrend/downtrend
-
-success: true/false
-
-Viewing Experiments
-
-# Start MLflow UI
-mlflow ui --port 5000
-# Navigate to http://localhost:5000
-# Click "finsight-stock-analysis" experiment
-# View/compare runs in table
-
-
-Querying Experiments
-
-import mlflow
-
-# Set tracking URI
-mlflow.set_tracking_uri("./mlruns")
-
-# Search runs
-runs = mlflow.search_runs(
-    experiment_names=["finsight-stock-analysis"],
-    filter_string="params.stock_symbol = 'AAPL'",
-    order_by=["metrics.sentiment_score DESC"]
-)
-print(runs[["params.stock_symbol", "metrics.sentiment_score"]])
-
-
-⏰ Workflow Automation
-
-Airflow DAG Configuration
-
-DAG Name: finsight_daily_analysis
-
-Schedule: Daily at 9:00 AM UTC (0 9 * * *)
-
-Tasks:
-
-analyze_aapl - Analyze Apple stock
-
-analyze_tsla - Analyze Tesla stock
-
-analyze_msft - Analyze Microsoft stock
-
-analyze_amzn - Analyze Amazon stock
-
-Execution: Tasks run in parallel
-
-Retry Logic:
-
-Max retries: 2
-
-Retry delay: 3 minutes
-
-Starting Airflow
-
-# Start Airflow container
-docker-compose up -d
-
-# Check logs
-docker-compose logs -f
-
-# Stop Airflow
-docker-compose down
-
-
-Airflow Web UI
-
-Navigate to http://localhost:8080
-
-Login: admin / admin
-
-Toggle DAG ON
-
-Click "Trigger DAG" to run manually
-
-Monitoring DAG Runs
-
-Graph View: Visual task dependencies
-
-Tree View: Historical run timeline
-
-Gantt View: Task duration analysis
-
-Logs: Per-task execution logs
-
-🔧 Troubleshooting
-
-Common Issues
-
-1. ImportError: newsapi module
-
+**Issue:** `ImportError: cannot import name 'NewsApiClient'`
+```bash
 pip uninstall newsapi
 pip install newsapi-python
+```
 
-
-2. Protobuf version conflict
-
+**Issue:** `protobuf version conflict`
+```bash
 pip uninstall protobuf
-pip install "protobuf>=3.20.3,<4.0.0"
+pip install protobuf==3.20.3
+```
 
-
-3. Port already in use
-
-# Change port
+**Issue:** Port already in use
+```bash
+# Change port in startup command
 uvicorn app.fastapi.main:app --port 8002
-streamlit run app/streamlit_app.py --server.port 8502
+mlflow ui --port 5001
+```
+
+**Issue:** Docker not starting
+- Ensure Docker Desktop is running
+- Check Docker has enough resources (4GB+ RAM)
+- Restart Docker Desktop
+
+**Issue:** Airflow DAG not appearing
+- Check `dags/` folder location
+- Verify DAG file has no syntax errors
+- Check Airflow logs in `logs/dag_processor/`
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please follow these steps:
+
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add AmazingFeature'`)
+4. Push to branch (`git push origin feature/AmazingFeature`)
+5. Open Pull Request
+
+---
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 👥 Authors
+
+- **Kanishk** - [@Kanishk00551](https://github.com/Kanishk00551)
+
+---
+
+## 🙏 Acknowledgments
+
+- [FastAPI](https://fastapi.tiangolo.com/) - Modern web framework
+- [MLflow](https://mlflow.org/) - MLOps platform
+- [Apache Airflow](https://airflow.apache.org/) - Workflow orchestration
+- [CardiffNLP](https://huggingface.co/cardiffnlp) - Pre-trained sentiment models
+- [NewsAPI](https://newsapi.org/) - News data provider
+- [Yahoo Finance](https://finance.yahoo.com/) - Stock data
+
+---
 
 
-4. Docker won't start
 
-Ensure Docker Desktop is running
-
-Check available RAM (need 4GB+)
-
-Restart Docker Desktop
-
-5. Airflow DAG not appearing
-
-Check dags/ folder location is correct
-
-Verify no Python syntax errors
-
-Check Airflow logs: docker-compose logs airflow
-
-6. API timeout on Render
-
-First request after spin-down takes ~30s
-
-Subsequent requests are fast
-
-Consider upgrading to paid tier for always-on
-
-7. MLflow tracking not working
-
-# Verify mlruns directory exists
-mkdir -p mlruns
-# Check MLflow config
-python -c "import mlflow; print(mlflow.get_tracking_uri())"
+---
 
 
-📈 Performance Metrics
 
-Response Times
+---
 
-Stock Data Fetch: ~1-2 seconds
+**⭐ If you find this project helpful, please give it a star!**
 
-News Analysis: ~2-3 seconds
-
-AI Report Generation: ~3-5 seconds
-
-Total API Response: ~6-10 seconds
-
-Scalability
-
-Concurrent Users: 10-50 (free tier)
-
-Daily API Calls: ~500-1000
-
-Storage: ~100MB for 1000 experiments
-
-🎓 Resume Summary
-
-FinSight - AI-Powered Stock Analysis Platform
-
-Engineered a production-grade financial analysis system leveraging FastAPI, MLflow, and Apache Airflow for automated stock market insights. Integrated Google Gemini 2.5 Flash LLM with VADER sentiment analysis to generate investment recommendations from real-time market data and financial news.
-
-Key Achievements:
-
-Designed RESTful API handling 500+ daily requests with 6-10s response time
-
-Implemented complete MLOps pipeline with MLflow experiment tracking (1000+ runs)
-
-Automated daily stock analysis workflow using Apache Airflow with parallel task execution
-
-Deployed scalable backend on Render.com with SQLite/PostgreSQL support
-
-Built interactive Streamlit dashboard with real-time data visualization
-
-Technical Stack: Python, FastAPI, Streamlit, MLflow, Apache Airflow, Docker, PostgreSQL, Redis, VADER NLP, Google Gemini AI, Yahoo Finance API, NewsAPI
 
 Impact: Reduced manual analysis time by 90%, enabled data-driven investment decisions through automated sentiment tracking and trend detection across 4+ major stocks.
