@@ -12,5 +12,3 @@ html5lib
 mlflow==2.10.0
 streamlit
 requests
-torch
-transformers
