@@ -55,8 +55,8 @@ with st.sidebar:
 
     st.markdown("---")
     st.markdown("### 🤖 Model Info")
-    st.text("Engine: Ollama (Local)")
-    st.text("Model: Llama 3.2 / DeepSeek")
+    st.text("Engine: API Call")
+    st.text("Model: Gemini Flash")
     
     st.markdown("---")
     st.caption(f"Last updated: {datetime.now().strftime('%H:%M:%S')}")
