@@ -5,34 +5,41 @@ sentiment_analyzer = None
 
 def get_analyzer():
     """
-    Checks if 'sentiment_analyzer' is loaded. If not, loads it.
+    Singleton pattern: Loads the model only when needed.
     """
     global sentiment_analyzer
     if sentiment_analyzer is None:
-        print("⏳ Loading Sentiment Model... (First request only)")
+        print("⏳ Loading Light Sentiment Model...")
+        # Use a smaller model (DistilBERT) to stay under the 512MB RAM limit
         sentiment_analyzer = pipeline(
             "sentiment-analysis",
-            model="cardiffnlp/twitter-roberta-base-sentiment-latest"
+            model="distilbert-base-uncased-finetuned-sst-2-english"
         )
-        print("✅ Sentiment Model Loaded!")
+        print("✅ Light Sentiment Model Loaded!")
     return sentiment_analyzer
 
 def analyze_sentiment(news_list):
     """
-    This function signature matches your original code EXACTLY.
+    Analyzes sentiment of a list of news headlines.
     """
     if not news_list:
         return 0
     
-  
+    # Load the model if it's not ready yet
     analyzer = get_analyzer()
     
     try:
-        results = analyzer(news_list)
+   
+        shortened_news = [text[:512] for text in news_list]
+        
+        results = analyzer(shortened_news)
+        
+        # Calculate score (Model labels are slightly different: POSITIVE/NEGATIVE)
         score = sum(
-            1 if r['label'] == 'positive' else -1 if r['label'] == 'negative' else 0
+            1 if r['label'] == 'POSITIVE' else -1 if r['label'] == 'NEGATIVE' else 0
             for r in results
         ) / len(results)
+        
         return score
     except Exception as e:
         print(f"Error in sentiment analysis: {e}")
