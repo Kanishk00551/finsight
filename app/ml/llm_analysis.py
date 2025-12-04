@@ -47,7 +47,7 @@ def generate_ai_report(symbol, stock_data, sentiment, trend, news):
 
     try:
        
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-2.5-flash')
         response = model.generate_content(prompt)
         
       
