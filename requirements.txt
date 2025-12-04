@@ -4,8 +4,7 @@ yfinance
 google-generativeai
 python-dotenv
 newsapi-python
-transformers
-torch
+vaderSentiment
 beautifulsoup4
 pandas
 lxml
