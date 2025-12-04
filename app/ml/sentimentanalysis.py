@@ -1,46 +1,35 @@
-from transformers import pipeline
+# app/ml/sentimentanalysis.py
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
-
-sentiment_analyzer = None
-
-def get_analyzer():
-    """
-    Singleton pattern: Loads the model only when needed.
-    """
-    global sentiment_analyzer
-    if sentiment_analyzer is None:
-        print("⏳ Loading Light Sentiment Model...")
-        # Use a smaller model (DistilBERT) to stay under the 512MB RAM limit
-        sentiment_analyzer = pipeline(
-            "sentiment-analysis",
-            model="distilbert-base-uncased-finetuned-sst-2-english"
-        )
-        print("✅ Light Sentiment Model Loaded!")
-    return sentiment_analyzer
+# Initialize VADER (Uses <1MB RAM)
+_analyzer = SentimentIntensityAnalyzer()
 
 def analyze_sentiment(news_list):
     """
-    Analyzes sentiment of a list of news headlines.
+    Analyzes sentiment using VADER (Valence Aware Dictionary and sEntiment Reasoner).
+    Perfect for financial texts and headlines on low-resource servers.
     """
     if not news_list:
         return 0
     
-    # Load the model if it's not ready yet
-    analyzer = get_analyzer()
-    
     try:
-   
-        shortened_news = [text[:512] for text in news_list]
+        total_score = 0
+        count = 0
         
-        results = analyzer(shortened_news)
-        
-        # Calculate score (Model labels are slightly different: POSITIVE/NEGATIVE)
-        score = sum(
-            1 if r['label'] == 'POSITIVE' else -1 if r['label'] == 'NEGATIVE' else 0
-            for r in results
-        ) / len(results)
-        
-        return score
+        for text in news_list:
+            # VADER is robust and doesn't need truncation
+            scores = _analyzer.polarity_scores(text)
+            # 'compound' is a normalized score between -1 (Negative) and +1 (Positive)
+            total_score += scores['compound']
+            count += 1
+            
+        if count == 0:
+            return 0
+            
+        return total_score / count
+
     except Exception as e:
         print(f"Error in sentiment analysis: {e}")
         return 0
+        
+        
