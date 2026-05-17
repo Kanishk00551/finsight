@@ -117,3 +117,11 @@ def analyze_stock(symbol: str):
                 status_code=500,
                 detail=f"Error analyzing {symbol}: {str(e)}"
             )   
+
+# cached = get_cached(symbol)
+# if cached:
+#     return cached
+
+# # run full pipeline...
+# set_cached(symbol, result)
+# return result
